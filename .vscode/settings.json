@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "/Users/felix/libraries",
+        "/Users/felix/keywords",
+        "/Users/felix/variables"
+    ]
+}

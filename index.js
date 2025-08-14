@@ -2,7 +2,6 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { init: initDB, Counter } = require("./db");
 
 const logger = morgan("tiny");
 
@@ -11,6 +10,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 app.use(logger);
+
+// 静态文件服务
+app.use('/AI-icon', express.static(path.join(__dirname, 'AI-icon')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 简单的内存计数器（用于测试）
+let counter = 0;
 
 // 首页
 app.get("/", async (req, res) => {
@@ -21,24 +27,21 @@ app.get("/", async (req, res) => {
 app.post("/api/count", async (req, res) => {
   const { action } = req.body;
   if (action === "inc") {
-    await Counter.create();
+    counter++;
   } else if (action === "clear") {
-    await Counter.destroy({
-      truncate: true,
-    });
+    counter = 0;
   }
   res.send({
     code: 0,
-    data: await Counter.count(),
+    data: counter,
   });
 });
 
 // 获取计数
 app.get("/api/count", async (req, res) => {
-  const result = await Counter.count();
   res.send({
     code: 0,
-    data: result,
+    data: counter,
   });
 });
 
@@ -49,12 +52,12 @@ app.get("/api/wx_openid", async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 3000;
 
-async function bootstrap() {
-  await initDB();
+function bootstrap() {
   app.listen(port, () => {
     console.log("启动成功", port);
+    console.log(`访问地址: http://localhost:${port}`);
   });
 }
 
